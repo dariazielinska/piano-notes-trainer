@@ -1,16 +1,61 @@
-# React + Vite
+# 🎹 Piano Notes Trainer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple educational web app for learning musical notes 🎵
+Built with React and designed especially for beginners and children.
 
-Currently, two official plugins are available:
+👉 **Live demo:** [Open app](https://dariazielinska.github.io/piano-notes-trainer/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* 🎤 **Play notes on a real instrument** (microphone detection)
+* 🎼 **Visual note display** (staff + clef)
+* 📈 **Progress-based learning system**
+* 👤 **Multiple user profiles**
+* 🎯 **Level progression (C major scale, treble & bass clef)**
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🧠 How it works
+
+1. The app shows a note on the staff
+2. The user plays the note on an instrument
+3. The microphone detects the pitch
+4. The app checks if the note is correct
+5. Progress is tracked per note and level
+
+---
+
+## 🚀 Getting Started
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Run locally
+
+```bash
+npm run dev
+```
+
+---
+
+## 🌐 Deployment
+
+This project is designed to work on **HTTPS only** (required for microphone access).
+
+---
+
+## ⚠️ Important Notes
+
+* 🎤 Microphone access requires **HTTPS**
+* 📱 Mobile browsers may behave differently with audio input
+* 🎹 Works best with a real instrument (piano/keyboard)
+
+---
+
+
+
