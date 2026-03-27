@@ -1,0 +1,1 @@
+export const REQUIRED_PER_NOTE = 10

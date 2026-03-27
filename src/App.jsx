@@ -1,6 +1,6 @@
 import { useState } from "react"
-import ProfileSelect from "./components/ProfileSelect"
-import Game from "./components/Game"
+import ProfileSelect from "./views/ProfileSelect/ProfileSelect"
+import Game from "./views/Game/Game"
 
 function App() {
   const [activeProfile, setActiveProfile] = useState(null)

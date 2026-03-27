@@ -1,4 +1,5 @@
 import { PitchDetector } from "pitchy"
+import { frequencyToNote } from "./audioUtils"
 
 let audioContext
 let analyser
@@ -20,13 +21,6 @@ export async function startMic(onPitchDetected) {
   detector = PitchDetector.forFloat32Array(analyser.fftSize)
   buffer = new Float32Array(detector.inputLength)
 
-  function frequencyToNote(freq) {
-    const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-    const A4 = 440
-    const semitone = 12 * Math.log2(freq / A4)
-    const noteIndex = Math.round(semitone) + 69
-    return noteNames[noteIndex % 12]
-  }
   function getVolume(buffer) {
     let sum = 0
     for (let i = 0; i < buffer.length; i++) {

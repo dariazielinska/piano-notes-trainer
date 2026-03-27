@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { loadProfiles, addProfile } from "../game/profile"
+import { loadProfiles, addProfile } from "../../profile/profilesStorage"
 
 function ProfileSelect({ onSelect }) {
   const [profiles, setProfiles] = useState(loadProfiles())
