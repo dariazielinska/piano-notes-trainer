@@ -4,6 +4,7 @@ import { startMic } from "../audio/pitchDetection"
 import { vexToSimple } from "../utils/noteUtils"
 import { levels } from "../game/levels"
 import { loadProfiles, saveProfiles } from "../game/profile"
+import "./Game.css"
 
 const noteNames = {
   C: "DO",
@@ -24,7 +25,7 @@ function formatNote(note) {
 const REQUIRED_PER_NOTE = 10
 
 function Game({ profile, onLogout }) {
-  const [levelIndex, setLevelIndex] = useState(profile.levelIndex || 0)
+  const [levelIndex, setLevelIndex] = useState(profile?.levelIndex || 0)
   const [currentNote, setCurrentNote] = useState(null)
   const [detected, setDetected] = useState("")
   const [started, setStarted] = useState(false)
@@ -39,6 +40,8 @@ function Game({ profile, onLogout }) {
   const currentLevel = levels[levelIndex]
 
   useEffect(() => {
+    if (!currentLevel) return
+
     const progress = {}
     currentLevel.notes.forEach(n => {
       progress[n] = 0
@@ -47,39 +50,37 @@ function Game({ profile, onLogout }) {
   }, [levelIndex])
 
   function getRandomNote() {
+    if (!currentLevel) return null
     const list = currentLevel.notes
-    const notLearned = list.filter(n => noteProgress[n] < REQUIRED_PER_NOTE)
+    const notLearned = list.filter(n => (noteProgress[n] || 0) < REQUIRED_PER_NOTE)
     const pool = notLearned.length > 0 ? notLearned : list
     return pool[Math.floor(Math.random() * pool.length)]
   }
 
   function randomNote() {
-    let newNote
-
-    do {
-      newNote = getRandomNote()
-    } while (newNote === currentNoteRef.current)
+    const newNote = getRandomNote()
+    if (!newNote) return
 
     setCurrentNote(newNote)
     setResult(null)
   }
 
   function getClefForNote(note) {
-    if (currentLevel.clef !== "mixed") return currentLevel.clef
+    if (!currentLevel || currentLevel.clef !== "mixed") return currentLevel?.clef || "treble"
 
     const bassNotes = [
       "c/3","d/3","e/3","f/3","g/3","a/3","b/3","c/4"
     ]
 
-    if (bassNotes.includes(note)) return "bass"
-
-    return "treble"
+    return bassNotes.includes(note) ? "bass" : "treble"
   }
+
   async function handleStart() {
     randomNote()
 
     await startMic((note) => {
       if (lockRef.current) return
+      if (!currentNoteRef.current) return
 
       setDetected(note)
 
@@ -94,7 +95,7 @@ function Game({ profile, onLogout }) {
             [currentNoteRef.current]: (prev[currentNoteRef.current] || 0) + 1
           }
           const allDone = currentLevel.notes.every(
-            note => (updated[note] || 0) >= REQUIRED_PER_NOTE
+            n => (updated[n] || 0) >= REQUIRED_PER_NOTE
           )
 
           if (allDone && levelIndex < levels.length - 1) {
@@ -109,7 +110,7 @@ function Game({ profile, onLogout }) {
         setTimeout(() => {
           randomNote()
           lockRef.current = false
-        }, 800)
+        }, 700)
       } else {
         setResult("bad")
       }
@@ -119,6 +120,8 @@ function Game({ profile, onLogout }) {
   }
 
   useEffect(() => {
+    if (!profile) return
+
     const profiles = loadProfiles()
 
     const updated = profiles.map(p =>
@@ -134,47 +137,57 @@ function Game({ profile, onLogout }) {
   const maxProgress = currentLevel.notes.length * REQUIRED_PER_NOTE
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <h1>Piano Trainer 🎹</h1>
+    <div className="game">
 
-      <h2>👋 {profile?.name || "Gracz"}</h2>
+      <h1 className="title">🎹 Piano Trainer</h1>
 
-      <button onClick={onLogout} style={{ marginBottom: "10px" }}>
-        🔙 Zmień użytkownika
-      </button>
+      <div className="user-bar">
+        <span>👋 {profile?.name}</span>
+        <button onClick={onLogout} className="small-btn">
+          Zmień
+        </button>
+      </div>
 
-      <p><strong>Poziom:</strong> {currentLevel.name}</p>
+      <div className="level">{currentLevel.name}</div>
 
-      <p>
-        Postęp: {totalProgress} / {maxProgress}
-      </p>
-
-      {currentNote && (
-        <Staff
-          note={currentNote}
-          clef={getClefForNote(currentNote)}
+      <div className="progress-bar">
+        <div
+          className="progress-fill"
+          style={{ width: `${(totalProgress / maxProgress) * 100}%` }}
         />
-      )}
+      </div>
+
+      <div className="note-box">
+        {currentNote && (
+          <Staff
+            note={currentNote}
+            clef={getClefForNote(currentNote)}
+          />
+        )}
+      </div>
 
       {!started && (
-        <button onClick={handleStart}>
-          Start 🎤
+        <button onClick={handleStart} className="start-btn">
+          🎤 Start
         </button>
       )}
 
-      <p>Grasz: {formatNote(detected)}</p>
+      <div className="detected">
+        {detected ? formatNote(detected) : "Zagraj nutę 🎵"}
+      </div>
 
       {result === "good" && (
-        <p style={{ color: "green" }}>✔️ dobrze!</p>
+        <div className="good">✔️ Super!</div>
       )}
 
       {result === "bad" && (
-        <p style={{ color: "red" }}>❌ spróbuj jeszcze</p>
+        <div className="bad">Jeszcze raz 🙂</div>
       )}
 
-      <button onClick={randomNote}>
-        Nowa nuta
+      <button onClick={randomNote} className="secondary-btn">
+        🔁 Zmień nutę
       </button>
+
     </div>
   )
 }
