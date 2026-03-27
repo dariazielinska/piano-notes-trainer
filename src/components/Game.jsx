@@ -21,13 +21,15 @@ function formatNote(note) {
   return solfege ? `${solfege} (${note})` : note
 }
 
+const REQUIRED_PER_NOTE = 10
+
 function Game({ profile, onLogout }) {
   const [levelIndex, setLevelIndex] = useState(profile.levelIndex || 0)
   const [currentNote, setCurrentNote] = useState(null)
   const [detected, setDetected] = useState("")
   const [started, setStarted] = useState(false)
   const [result, setResult] = useState(null)
-  const [score, setScore] = useState(0)
+  const [noteProgress, setNoteProgress] = useState({})
 
   const currentNoteRef = useRef(currentNote)
   currentNoteRef.current = currentNote
@@ -36,9 +38,19 @@ function Game({ profile, onLogout }) {
 
   const currentLevel = levels[levelIndex]
 
+  useEffect(() => {
+    const progress = {}
+    currentLevel.notes.forEach(n => {
+      progress[n] = 0
+    })
+    setNoteProgress(progress)
+  }, [levelIndex])
+
   function getRandomNote() {
     const list = currentLevel.notes
-    return list[Math.floor(Math.random() * list.length)]
+    const notLearned = list.filter(n => noteProgress[n] < REQUIRED_PER_NOTE)
+    const pool = notLearned.length > 0 ? notLearned : list
+    return pool[Math.floor(Math.random() * pool.length)]
   }
 
   function randomNote() {
@@ -52,6 +64,17 @@ function Game({ profile, onLogout }) {
     setResult(null)
   }
 
+  function getClefForNote(note) {
+    if (currentLevel.clef !== "mixed") return currentLevel.clef
+
+    const bassNotes = [
+      "c/3","d/3","e/3","f/3","g/3","a/3","b/3","c/4"
+    ]
+
+    if (bassNotes.includes(note)) return "bass"
+
+    return "treble"
+  }
   async function handleStart() {
     randomNote()
 
@@ -65,15 +88,20 @@ function Game({ profile, onLogout }) {
       if (note === expected) {
         setResult("good")
 
-        setScore(prev => {
-          const newScore = prev + 1
+        setNoteProgress(prev => {
+          const updated = {
+            ...prev,
+            [currentNoteRef.current]: (prev[currentNoteRef.current] || 0) + 1
+          }
+          const allDone = currentLevel.notes.every(
+            note => (updated[note] || 0) >= REQUIRED_PER_NOTE
+          )
 
-          if (newScore >= 5 && levelIndex < levels.length - 1) {
+          if (allDone && levelIndex < levels.length - 1) {
             setLevelIndex(prev => prev + 1)
-            return 0
           }
 
-          return newScore
+          return updated
         })
 
         lockRef.current = true
@@ -81,7 +109,7 @@ function Game({ profile, onLogout }) {
         setTimeout(() => {
           randomNote()
           lockRef.current = false
-        }, 1000)
+        }, 800)
       } else {
         setResult("bad")
       }
@@ -102,21 +130,30 @@ function Game({ profile, onLogout }) {
     saveProfiles(updated)
   }, [levelIndex])
 
+  const totalProgress = Object.values(noteProgress).reduce((a, b) => a + b, 0)
+  const maxProgress = currentLevel.notes.length * REQUIRED_PER_NOTE
+
   return (
     <div style={{ textAlign: "center" }}>
       <h1>Piano Trainer 🎹</h1>
 
-      <h2>👋 {profile.name}</h2>
+      <h2>👋 {profile?.name || "Gracz"}</h2>
 
       <button onClick={onLogout} style={{ marginBottom: "10px" }}>
         🔙 Zmień użytkownika
       </button>
 
       <p><strong>Poziom:</strong> {currentLevel.name}</p>
-      <p><strong>Punkty:</strong> {score}/5</p>
+
+      <p>
+        Postęp: {totalProgress} / {maxProgress}
+      </p>
 
       {currentNote && (
-        <Staff note={currentNote} clef={currentLevel.clef} />
+        <Staff
+          note={currentNote}
+          clef={getClefForNote(currentNote)}
+        />
       )}
 
       {!started && (
