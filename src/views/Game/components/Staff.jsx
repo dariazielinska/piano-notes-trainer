@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react"
 import { Renderer, Stave, StaveNote, Voice, Formatter } from "vexflow"
 
-function Staff({ note = "c/4", clef = "treble" }) {
+function Staff({ note = "c/4", clef = "treble", result }) {
   const containerRef = useRef(null)
 
   useEffect(() => {
     const div = containerRef.current
+    const isCorrect = result === "good"
     if (!div) return
 
     div.innerHTML = ""
@@ -27,8 +28,8 @@ function Staff({ note = "c/4", clef = "treble" }) {
     })
 
     staveNote.setStyle({
-      fillStyle: "#222",
-      strokeStyle: "#222",
+      fillStyle: isCorrect ? "#4caf50" : "#222",
+      strokeStyle: isCorrect ? "#4caf50" : "#222",
     })
 
     const voice = new Voice({
@@ -51,7 +52,7 @@ function Staff({ note = "c/4", clef = "treble" }) {
       svg.style.height = "250px"
     }
 
-  }, [note, clef])
+  }, [note, clef, result])
 
   return <div ref={containerRef}></div>
 }

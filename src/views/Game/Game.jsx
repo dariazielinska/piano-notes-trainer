@@ -49,6 +49,7 @@ function Game({ profile, onLogout }) {
           <Staff
             note={currentNote}
             clef={getClefForNote(currentNote)}
+            result={result}
           />
         )}
       </div>
