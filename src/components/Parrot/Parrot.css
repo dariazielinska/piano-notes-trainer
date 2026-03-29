@@ -1,0 +1,13 @@
+.parrot svg {
+  width: 300px;
+}
+
+.parrot--idle #head {
+  transform-origin: center;
+  animation: headMove 2s ease-in-out infinite;
+}
+
+@keyframes headMove {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(5deg); }
+}

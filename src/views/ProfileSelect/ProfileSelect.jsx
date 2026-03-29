@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { loadProfiles, addProfile } from "../../profile/profilesStorage"
+import Parrot from "../../components/Parrot/Parrot"
+import "./styles/ProfileSelect.css"
 
 function ProfileSelect({ onSelect }) {
   const [profiles, setProfiles] = useState(loadProfiles())
@@ -17,21 +19,16 @@ function ProfileSelect({ onSelect }) {
   }
 
   return (
-    <div style={{ textAlign: "center", marginTop: "40px" }}>
-      <h1>Kto gra? 🎹</h1>
-
+    <div className="profile-container">
+      <Parrot animation="idle"/>
+      <h1 className="title">Witaj w Polly Piano 🦜🎹</h1>
       {profiles.length > 0 && (
-        <div style={{ marginBottom: "20px" }}>
+        <div className="profile-list">
           {profiles.map(profile => (
             <button
               key={profile.id}
               onClick={() => onSelect(profile)}
-              style={{
-                display: "block",
-                margin: "10px auto",
-                padding: "12px 20px",
-                fontSize: "18px"
-              }}
+              className="profile-card"
             >
               {profile.name}
             </button>
@@ -40,21 +37,21 @@ function ProfileSelect({ onSelect }) {
       )}
 
       {!showInput && (
-        <button onClick={() => setShowInput(true)}>
+        <button className="add-btn" onClick={() => setShowInput(true)}>
           ➕ Nowy użytkownik
         </button>
       )}
 
       {showInput && (
-        <div style={{ marginTop: "15px" }}>
+        <div className="input-row">
           <input
+            className="input"
             placeholder="Imię"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={{ padding: "8px", marginRight: "10px" }}
           />
 
-          <button onClick={handleAdd}>
+          <button className="save-btn" onClick={handleAdd}>
             Zapisz
           </button>
         </div>
